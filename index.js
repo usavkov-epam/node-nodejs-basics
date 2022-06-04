@@ -91,7 +91,14 @@ if (!moduleName || !taskName) {
   logUnexistingTask();
 } else {
   try {
-    tasksMap[moduleName][taskName](...fnArgs)
+    tasksMap[moduleName][taskName](...fnArgs.map(arg => {
+      try {
+        const parsed = JSON.parse(arg);
+        return parsed;
+      } catch {
+        return arg;
+      }
+    }))
   } catch (error) {
     console.log('error', error);
   }
