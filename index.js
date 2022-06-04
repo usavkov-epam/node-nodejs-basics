@@ -41,7 +41,7 @@ const tasksMap = {
     env: parseEnv,
   },
   cp: {
-    cp: spawnChildProcess,
+    cp: (...args) => spawnChildProcess(args),
   },
   fs: {
     copy: copy,
@@ -86,19 +86,12 @@ const tasksMap = {
 }
 
 if (!moduleName || !taskName) {
-  console.log('Please provide module name and task name.');
+  wrapLog(() => console.log('Please provide module name and task name.'));
 } else if (!tasksMap[moduleName][taskName]) {
   logUnexistingTask();
 } else {
   try {
-    tasksMap[moduleName][taskName](...fnArgs.map(arg => {
-      try {
-        const parsed = JSON.parse(arg);
-        return parsed;
-      } catch {
-        return arg;
-      }
-    }))
+    tasksMap[moduleName][taskName](...fnArgs)
   } catch (error) {
     console.log('error', error);
   }

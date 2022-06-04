@@ -1,14 +1,19 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { createWriteStream } from 'fs';
+import { resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  getDirname,
+} from '../utils.js';
 
-const filePath = path.resolve(__dirname, 'files', 'fileToWrite.txt');
+const __dirname = getDirname(import.meta.url);
+
+const src = resolve(__dirname, 'files', 'fileToWrite.txt');
 
 export const write = async () => {
-  const writable = fs.createWriteStream(filePath);
+  await checkCanBePerformed({ src });
+
+  const writable = createWriteStream(src);
 
   return process.stdin.pipe(writable);
 };

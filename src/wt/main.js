@@ -1,16 +1,21 @@
-import os from 'os';
+import { cpus } from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { isMainThread, Worker } from 'worker_threads';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  getDirname,
+} from '../utils.js';
 
-const CPU_COUNT = os.cpus().length;
+const __dirname = getDirname(import.meta.url);
+
+const CPU_COUNT = cpus().length;
 const INIT_NUM = 10;
 
+const src = path.resolve(__dirname, 'worker.js');
+
 const createWorker = (n) => new Promise((resolve) => {
-  const worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+  const worker = new Worker(src, {
     workerData: { n },
   });
 
@@ -29,6 +34,8 @@ const createWorker = (n) => new Promise((resolve) => {
 });
 
 export const performCalculations = async () => {
+  await checkCanBePerformed({ src });
+
   if (isMainThread) {
     const workers = new Array(CPU_COUNT).fill(null)
       .map((_, index) => createWorker(INIT_NUM + index));

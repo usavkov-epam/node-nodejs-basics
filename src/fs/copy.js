@@ -1,18 +1,24 @@
-import { access, cp } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { cp } from 'fs/promises';
+import { resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  fsErrorMessage,
+  getDirname,
+} from '../utils.js';
 
-const throwFSError = () => { throw new Error('FS operation failed') };
+const __dirname = getDirname(import.meta.url);
 
-const src = path.resolve(__dirname, 'files');
-const dest = path.resolve(__dirname, 'files_copy');
+const src = resolve(__dirname, 'files');
+const dest = resolve(__dirname, 'files_copy');
 
 export const copy = async () => {
-  return access(src).then(
-    () => access(dest).then(throwFSError, () => cp(src, dest, { recursive: true })),
-    throwFSError,
-  );
+  await checkCanBePerformed({
+    dest,
+    src,
+    destErrorMessage: fsErrorMessage,
+    srcErrorMessage: fsErrorMessage,
+  });
+
+  cp(src, dest, { recursive: true });
 };

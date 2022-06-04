@@ -1,9 +1,11 @@
 import { spawn } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  getDirname,
+} from '../utils.js';
+
+const __dirname = getDirname(import.meta.url);
 
 const MAIN_PROCESS = '\x1b[32m(Main)\x1b[0m'
 
@@ -12,7 +14,7 @@ export const spawnChildProcess = async (args) => {
 
   const childProcess = spawn(
     'node',
-    [path.join(__dirname, 'files', 'script.js'), ...args],
+    [join(__dirname, 'files', 'script.js'), ...args],
     { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] }
   );
 

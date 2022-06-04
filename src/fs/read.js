@@ -1,14 +1,15 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  getDirname,
+  throwFSError,
+} from '../utils.js';
 
-const throwFSError = () => { throw new Error('FS operation failed') };
+const __dirname = getDirname(import.meta.url);
 
-const filePath = path.resolve(__dirname, 'files', 'fileToRead.txt');
+const src = resolve(__dirname, 'files', 'fileToRead.txt');
 
 export const read = async () => {
-  return fs.readFile(filePath, { encoding: 'utf-8' }).then(console.log, throwFSError);
+  return readFile(src, { encoding: 'utf-8' }).then(console.log, throwFSError);
 };

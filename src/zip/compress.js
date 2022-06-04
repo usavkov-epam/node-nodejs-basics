@@ -2,21 +2,26 @@ import {
   createReadStream,
   createWriteStream,
 } from 'fs';
-import path from 'path';
+import { resolve } from 'path';
 import { pipeline } from 'stream';
-import { fileURLToPath } from 'url';
 import { createGzip } from 'zlib';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  getDirname,
+} from '../utils.js';
 
-const filePath = path.resolve(__dirname, 'files', 'fileToCompress.txt');
-const zipPath = path.resolve(__dirname, 'files', 'archive.gz');
+const __dirname = getDirname(import.meta.url);
+
+const src = resolve(__dirname, 'files', 'fileToCompress.txt');
+const dest = resolve(__dirname, 'files', 'archive.gz');
 
 export const compress = async () => {
+  await checkCanBePerformed({ src, dest });
+
   const gzip = createGzip();
-  const source = createReadStream(filePath);
-  const destination = createWriteStream(zipPath);
+  const source = createReadStream(src);
+  const destination = createWriteStream(dest);
 
   pipeline(source, gzip, destination, (error) => {
     if (error) {

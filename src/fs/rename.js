@@ -1,19 +1,25 @@
-import fs, { access } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import { resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  fsErrorMessage,
+  getDirname,
+} from '../utils.js';
 
-const throwFSError = () => { throw new Error('FS operation failed') };
+const __dirname = getDirname(import.meta.url);
 
-const filesPath = path.resolve(__dirname, 'files');
-const oldFile = path.resolve(filesPath, 'wrongFilename.txt');
-const newFile = path.resolve(filesPath, 'properFilename.md');
+const filesPath = resolve(__dirname, 'files');
+const src = resolve(filesPath, 'wrongFilename.txt');
+const dest = resolve(filesPath, 'properFilename.md');
 
 export const rename = async () => {
-  return access(oldFile).then(
-    () => access(newFile).then(throwFSError, () => fs.rename(oldFile, newFile)),
-    throwFSError,
-  );
+  await checkCanBePerformed({
+    dest,
+    src,
+    destErrorMessage: fsErrorMessage,
+    srcErrorMessage: fsErrorMessage,
+  });
+
+  return fs.rename(src, dest);
 };

@@ -1,12 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { createReadStream } from 'fs';
+import { resolve } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {
+  checkCanBePerformed,
+  getDirname,
+} from '../utils.js';
 
-const filePath = path.resolve(__dirname, 'files', 'fileToRead.txt');
+const __dirname = getDirname(import.meta.url);
+
+const src = resolve(__dirname, 'files', 'fileToRead.txt');
 
 export const read = async () => {
-  return fs.createReadStream(filePath).pipe(process.stdout);
+  await checkCanBePerformed({ src });
+
+  return createReadStream(src).pipe(process.stdout);
 };

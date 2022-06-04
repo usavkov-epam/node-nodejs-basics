@@ -10,11 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const random = Math.random();
-const require = createRequire(import.meta.url);
+const importFile = createRequire(import.meta.url);
 
 export const unknownObject = random > 0.5 
-  ? require('./files/a.json')
-  : require('./files/b.json');
+  ? importFile('./files/a.json')
+  : importFile('./files/b.json');
 
 console.log(`Release ${release()}`);
 console.log(`Version ${version()}`);
