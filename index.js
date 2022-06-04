@@ -19,12 +19,21 @@ import { transform } from './src/streams/transform.js';
 import { write } from './src/streams/write.js';
 
 import { performCalculations } from './src/wt/main.js';
-import { nthFibonacci, sendResult } from './src/wt/worker.js';
+// import { sendResult } from './src/wt/worker.js';
 
 import { compress } from './src/zip/compress.js';
 import { decompress } from './src/zip/decompress.js';
 
 const [moduleName, taskName, ...fnArgs] = process.argv.slice(2);
+
+const wrapLog = (fn, ...args) => {
+  console.log('--------------------------------------------------------------');
+  fn(...args);
+  console.log('--------------------------------------------------------------');
+}
+const logUnexistingTask = () => {
+  wrapLog(() => console.log('There is no task with this params. Please check CLI arguments.'));
+}
 
 const tasksMap = {
   cli: {
@@ -43,10 +52,23 @@ const tasksMap = {
     rename: rename,
   },
   hash: {
-    calcHash: () => calculateHash().then(console.log),
+    calcHash: () => calculateHash().then(res => wrapLog(() => console.log(res))),
   },
   modules: {
-    cjsToEsm: () => import('./src/modules/cjsToEsm.mjs'),
+    cjsToEsm: () => {
+      import('./src/modules/cjsToEsm.mjs')
+        .then(({ createMyServer, unknownObject }) => {
+          createMyServer.listen(3000, () => {
+            console.log();
+            wrapLog(() => {
+              console.log(`Unknown object: ${JSON.stringify(unknownObject)}`);
+              console.log('Server is listening on port 3000. Please open http://localhost:3000/ in your browser to check result.');
+              console.log('Precc Ctrl + C to exit');
+            });
+          })
+        });
+      
+    },
   },
   streams: {
     read: readStream,
@@ -54,22 +76,13 @@ const tasksMap = {
     write: write,
   },
   wt: {
-    main: performCalculations,
-    worker: {
-      nthFibonacci: nthFibonacci,
-      sendResult: sendResult,
-    },
+    main: () => performCalculations().then(res => wrapLog(() => console.log(res))),
+    worker: () => wrapLog(() => console.log('Please check this task manually or in scope of \'wt main\'.')),
   },
   zip: {
     compress: compress,
     decompress: decompress,
   },
-}
-
-const logUnexistingTask = () => {
-  console.log('--------------------------------------------------------------');
-  console.log('There is no task with this params. Please check CLI arguments.');
-  console.log('--------------------------------------------------------------');
 }
 
 if (!moduleName || !taskName) {

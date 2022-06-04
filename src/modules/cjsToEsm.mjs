@@ -26,8 +26,3 @@ console.log(`Path to current directory is ${__dirname}`);
 export const createMyServer = createServerHttp((_, res) => {
   res.end('Request accepted');
 });
-
-// Uncommend the following line to have the ability to run the server on a port 3000:
-// createMyServer.listen(3000, () => {
-//   console.log('Server is listening on port 3000');
-// })
